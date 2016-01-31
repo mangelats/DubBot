@@ -234,6 +234,17 @@ Protocol.prototype.unban = function(userID) {
         correctCode(error, response, "[User Unban]");
     });
 };
+Protocol.prototype.getUser = function(userid, callback) {
+    request({
+        method: 'GET',
+        url: 'user/' + userid
+    }, function(error, response, body){
+        if (!correctCode(error, response, "[User Info Get]")) return;
+        if (callback != undefined) {
+            callback(response);
+        }
+    });
+};
 util.inherits(Protocol, EventEmitter);
 
 
@@ -302,7 +313,7 @@ function ready(msg) {
         url: 'room/' + room + '/playlist/active'
     }, function(error, response, body){
         correctCode(error, response, "[Getting song]");
-        onSongUpdate(body.data.songInfo);
+        onSongUpdate(body.data);
     });
 
     protocol.connected = true;
@@ -319,18 +330,18 @@ function disconnected(msg) {
 }
 function chatEvent(msg) {
     if (msg.type == messageTypes.chat) {
-        protocol.emit('chat', msg.message, msg.user, msg.time, msg._id);
+        protocol.emit('chat', msg);
     } else if (msg.type == messageTypes.songUpdate){
-        onSongUpdate(msg.songInfo);
+        onSongUpdate(msg);
     }
 }
 function chatErrorEvent(err) {
     console.error(err);
 }
-function onSongUpdate(songInfo) {
-    if (songInfo != undefined && protocol.currentSongID != songInfo._id) {
-        protocol.currentSongID = songInfo._id;
-        protocol.emit('newSong', songInfo);
+function onSongUpdate(data) {
+    if (data != undefined && protocol.currentSongID != data.song._id) {
+        protocol.currentSongID = data.song._id;
+        protocol.emit('newSong', data);
     }
 }
 
