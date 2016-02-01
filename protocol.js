@@ -41,6 +41,7 @@ function correctCode(error, response, where) {
 
     if (response.statusCode !== 200) {
         console.error(where + " Some unxpected HTTP status code has been recived: " + response.statusCode);
+        console.log(response);
         return false;
     }
 
