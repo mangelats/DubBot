@@ -1,16 +1,15 @@
 # DubBot
 A simple interface to make bots for budtrack.fm
 
-## Intalling DubBot
-Package to be made and uploaded.
+## Intalling dub-bot
 
 ```
-npm intall dubbot
+npm intall dub-bot
 ```
 
 ## Get the package
 ```js
-var dubbot = require('dubbot');
+var dubbot = require('dub-bot');
 ```
 
 ## Add a command
