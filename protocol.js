@@ -114,7 +114,7 @@ Protocol.prototype.sendMsg = function(message) {
             time: Date.now(),
             message: message
         }
-    }, funtion(error, response, body){
+    }, function(error, response, body){
         correctCode(error, response, "[Chat Message Sending]");
     });
 };
@@ -124,7 +124,7 @@ Protocol.prototype.deleteChat = function(chatID) {
     request({
         method: 'DELETE',
         url: 'chat/' + room + '/' + chatID
-    }, funtion(error, response, body){
+    }, function(error, response, body){
         correctCode(error, response, "[Chat Message Deletion]");
     });
 };
@@ -137,7 +137,7 @@ Protocol.prototype.updub = function() {
         form: {
             type: 'updub'
         }
-    }, funtion(error, response, body){
+    }, function(error, response, body){
         correctCode(error, response, "[Song Updub]");
     });
 };
@@ -150,7 +150,7 @@ Protocol.prototype.downdub = function() {
         form: {
             type: 'downdub'
         }
-    }, funtion(error, response, body){
+    }, function(error, response, body){
         correctCode(error, response, "[Song Downdub]");
     });
 };
@@ -163,7 +163,7 @@ Protocol.prototype.skip = function() {
         form: {
             realTimeChannel: chatChannel
         }
-    }, funtion(error, response, body){
+    }, function(error, response, body){
         correctCode(error, response, "[Song Skip]");
     });
 };
@@ -177,7 +177,7 @@ Protocol.prototype.kick = function(userID, msg) {
             realTimeChannel: chatChannel,
             message: msg ? encodeHTML(msg) : ''
         }
-    }, funtion(error, response, body){
+    }, function(error, response, body){
         correctCode(error, response, "[User Kick]");
     });
 };
@@ -190,7 +190,7 @@ Protocol.prototype.mute = function(userID) {
         form: {
             realTimeChannel: chatChannel
         }
-    }, funtion(error, response, body){
+    }, function(error, response, body){
         correctCode(error, response, "[User Mute]");
     });
 };
@@ -203,7 +203,7 @@ Protocol.prototype.unmute = function(userID) {
         form: {
             realTimeChannel: chatChannel
         }
-    }, funtion(error, response, body){
+    }, function(error, response, body){
         correctCode(error, response, "[User Unmute]");
     });
 };
@@ -217,7 +217,7 @@ Protocol.prototype.ban = function(userID, time) {
             realTimeChannel: chatChannel,
             time: (time && time > 0) ? time : 0
         }
-    }, funtion(error, response, body){
+    }, function(error, response, body){
         correctCode(error, response, "[User Ban]");
     });
 };
@@ -230,18 +230,18 @@ Protocol.prototype.unban = function(userID) {
         form: {
             realTimeChannel: chatChannel
         }
-    }, funtion(error, response, body){
+    }, function(error, response, body){
         correctCode(error, response, "[User Unban]");
     });
 };
-Protocol.prototype.getUser = function(userid, callback) {
+Protocol.prototype.getUser = function(userid, callback, that) {
     request({
         method: 'GET',
         url: 'user/' + userid
     }, function(error, response, body){
         if (!correctCode(error, response, "[User Info Get]")) return;
         if (callback != undefined) {
-            callback(response);
+            callback(body, that);
         }
     });
 };

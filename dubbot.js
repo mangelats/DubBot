@@ -2,6 +2,7 @@
 
 const EventEmitter = require('events');
 var protocol = require('./protocol.js');
+var request = require('request');
 
 const util = require('util');
 
@@ -12,8 +13,11 @@ const util = require('util');
 //User: reporesents any user of the chat (the bot is also one of them)
 function User(data) {
     this._id = data.userInfo.userid;
-    this.username = data.userInfo.username;
+    this.username = data.username;
     this.name = data.userInfo.displayName;
+    if (this.name === undefined) {
+        this.name = "";
+    }
 }
 User.prototype.kick = function(msg) {
     protocol.kick(this._id, msg);
@@ -40,11 +44,13 @@ User.prototype.unban = function() {
 function Song(data) {
     this._id = data.song._id;
     this.name = data.songInfo.name;
-    this.permalink = generateLink(data.songInfo.fkid);
+
+    this.permalink = data.songInfo.type == 'youtube' ? "http://youtu.be/" + data.songInfo.fkid : "";
+
     this.sender = undefined;
-    protocol.getUser(data.song.userid, function(data){
-        this.sender = new User(data);
-    });
+    protocol.getUser(data.song.userid, function(body, that){
+        that.sender = new User(body.data);
+    }, this);
 }
 Song.prototype.skip = function() {
     if (protocol.currentSongID != this._id) return;
@@ -60,7 +66,6 @@ Song.prototype.downdub = function() {
 };
 
 
-
 //Message: represents a message from the chat
 function Message(msg) {
     this._id = msg._id;
@@ -73,13 +78,14 @@ Message.prototype.delete = function() {
 };
 
 
-
+var bot;
 //DubBot the main dish...
 function DubBot() {
     this.autoreconnect = false;
     this.username = '';
     this.password = '';
     this.room = '';
+    bot = this;
 
     //events registration
     protocol.on('connected', this.connected);
@@ -94,25 +100,27 @@ DubBot.prototype.start = function(username, password, room, autoreconnect) {
     if (autoreconnect != undefined) {
         this.autoreconnect = autoreconnect;
     }
+
+    protocol.connect(username, password, room);
 };
 DubBot.prototype.connected = function() {
-    this.emit('connected');
+    bot.emit('connected');
 };
 DubBot.prototype.disconnected = function() {
     console.log("The bot disconnected.")
-    if (this.autoreconnect) {
+    if (bot.autoreconnect) {
         setTimeout(reconnect, 5000);
         console.log("Trying to reconnect in 5 seconds...");
     }
 };
 DubBot.prototype.reconnect = function() {
-    this.start(this.username, this.password, room, true);
+    bot.start(bot.username, bot.password, room, true);
 };
 DubBot.prototype.newSong = function(songInfo) {
-    this.emit('song', new Song(songInfo));
+    bot.emit('song', new Song(songInfo));
 };
 DubBot.prototype.chat = function(msg) {
-    this.emit('chat', new Message(msg));
+    bot.emit('chat', new Message(msg));
 };
 util.inherits(DubBot, EventEmitter);
 
