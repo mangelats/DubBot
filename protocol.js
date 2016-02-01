@@ -331,7 +331,7 @@ function disconnected(msg) {
 }
 function chatEvent(msg) {
     if (msg.type == messageTypes.chat) {
-        protocol.emit('chat', msg);
+        protocol.emit('chat-message', msg);
     } else if (msg.type == messageTypes.songUpdate){
         onSongUpdate(msg);
     }
@@ -342,7 +342,7 @@ function chatErrorEvent(err) {
 function onSongUpdate(data) {
     if (data != undefined && protocol.currentSongID != data.song._id) {
         protocol.currentSongID = data.song._id;
-        protocol.emit('newSong', data);
+        protocol.emit('song-change', data);
     }
 }
 

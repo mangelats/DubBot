@@ -23,10 +23,10 @@ dubbot.addCommand('!skip', 10, function(command, params, message){
 
 ## Add a listener
 ```js
-dubbot.on('chat', function(message) {
-	console.log(h(message.time) + " " + message.sender.username + ": " + message.message);
+dubbot.on('chat-message', function(message) {
+	console.log(h(message.time) + " " + message.sender.username + ": " + message.content);
 });
-dubbot.on('song', function(song) {
+dubbot.on('song-change', function(song) {
 	console.log("Now is playing: " + song.name);
 });
 

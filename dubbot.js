@@ -80,7 +80,7 @@ CommandList.prototype.execute = function(command_name) {
 
 
 
-//User: reporesents any user of the chat (the bot is also one of them)
+//User: represents any user of the chat (the bot is also one of them)
 function User(data) {
     this._id = data.userInfo.userid;
     this.username = data.username;
@@ -144,7 +144,7 @@ function Message(msg) {
     this._id = msg._id;
     this.time = new Date(msg.time);
     this.sender = new User(msg.user);
-    this.message = msg.message;
+    this.content = msg.message;
 }
 Message.prototype.delete = function() {
     protocol.deleteChat(this._id);
@@ -174,8 +174,8 @@ function DubBot() {
     //events registration
     protocol.on('connected', this.connected);
     protocol.on('disconnected', this.disconnected);
-    protocol.on('newSong', this.newSong);
-    protocol.on('chat', this.chat);
+    protocol.on('song-change', this.newSong);
+    protocol.on('chat-message', this.chat);
 }
 DubBot.prototype.start = function(username, password, room, autoreconnect) {
     this.username = username;
@@ -202,7 +202,7 @@ DubBot.prototype.reconnect = function() {
 };
 DubBot.prototype.newSong = function(songInfo) {
     bot.currentSong = new Song(songInfo);
-    bot.emit('song', bot.currentSong);
+    bot.emit('song-change', bot.currentSong);
 };
 DubBot.prototype.chat = function(msg) {
     var msgo = new Message(msg);
@@ -210,7 +210,7 @@ DubBot.prototype.chat = function(msg) {
         var s = msg.message.split(/\s/g);
         if (bot.commands.execute(s[0], s, msgo)) return;
     }
-    bot.emit('chat', msgo);
+    bot.emit('chat-message', msgo);
 };
 DubBot.prototype.addCommand = function(cmd, cd, callback) {
     if (cmd.charAt(0) != '!') return;
