@@ -9,24 +9,24 @@ npm intall dub-bot
 
 ## Get the package
 ```js
-var dubbot = require('dub-bot');
+var bot = require('dub-bot');
 ```
 
 ## Add a command
 ```js
 //addCommand(name, cooldown, function(command, params, message))
-dubbot.addCommand('!skip', 10, function(command, params, message){
-	dubbot.say("Skipping song!"); // sends a message to the chat
-	dubbot.currentSong.skip();
+bot.addCommand('!skip', 10, function(command, params, message){
+	bot.say("Skipping song!"); // sends a message to the chat
+	bot.currentSong.skip();
 });
 ```
 
 ## Add a listener
 ```js
-dubbot.on('chat-message', function(message) {
+bot.on('chat-message', function(message) {
 	console.log(h(message.time) + " " + message.sender.username + ": " + message.content);
 });
-dubbot.on('song-change', function(song) {
+bot.on('song-change', function(song) {
 	console.log("Now is playing: " + song.name);
 });
 
@@ -42,5 +42,5 @@ function h(time) {
 ## Connect to the room
 This last step is recomended to be done at the end (so all the features are loaded when it connects).
 ```js
-dubbot.connect('username', 'password', 'room');
+bot.connect('username', 'password', 'room');
 ```
