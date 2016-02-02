@@ -41,7 +41,6 @@ function correctCode(error, response, where) {
 
     if (response.statusCode !== 200) {
         console.error(where + " Some unxpected HTTP status code has been recived: " + response.statusCode);
-        console.log(response);
         return false;
     }
 
@@ -294,7 +293,7 @@ function sessionResponse(error, response, body) {
     }, roomInfoResponse);
 }
 function roomInfoResponse(error, response, body) {
-    correctCode(error, response, "[Connecting]");
+    if (!correctCode(error, response, "[Connecting]")) return;
 
     chatChannel = body.data.realTimeChannel;
     room = body.data._id;
@@ -313,7 +312,7 @@ function ready(msg) {
         method: 'GET',
         url: 'room/' + room + '/playlist/active'
     }, function(error, response, body){
-        correctCode(error, response, "[Getting song]");
+        if (!correctCode(error, response, "[Getting Song]")) return;
         onSongUpdate(body.data);
     });
 
@@ -340,7 +339,7 @@ function chatErrorEvent(err) {
     console.error(err);
 }
 function onSongUpdate(data) {
-    if (data != undefined && protocol.currentSongID != data.song._id) {
+    if (data != undefined && data.song != undefined && protocol.currentSongID != data.song._id) {
         protocol.currentSongID = data.song._id;
         protocol.emit('song-change', data);
     }

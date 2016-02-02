@@ -16,6 +16,7 @@ var dubbot = require('dub-bot');
 ```js
 //addCommand(name, cooldown, function(command, params, message))
 dubbot.addCommand('!skip', 10, function(command, params, message){
+	dubbot.say("Skipping song!"); // sends a message to the chat
 	dubbot.currentSong.skip();
 });
 ```
@@ -36,4 +37,10 @@ function d2(num) {
 function h(time) {
 	return "[" + d2(time.getHours()) + ":" + d2(time.getMinutes()) + ":" + d2(time.getSeconds()) + "]";
 }
+```
+
+## Connect to the room
+This last step is recomended to be done at the end (so all the features are loaded when it connects).
+```js
+dubbot.connect('username', 'password', 'room');
 ```

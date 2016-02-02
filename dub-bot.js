@@ -217,6 +217,9 @@ DubBot.prototype.addCommand = function(cmd, cd, callback) {
 
     bot.commands.add(new Command(cmd, cd*1000, callback));
 };
+DubBot.prototype.say = function(msg) {
+    protocol.sendMsg(msg);
+};
 util.inherits(DubBot, EventEmitter);
 
 module.exports = new DubBot();
