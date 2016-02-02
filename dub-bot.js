@@ -35,6 +35,9 @@ Command.prototype.execute = function() {
     }
     return false;
 };
+Command.prototype.toString = function() {
+    return this.name;
+};
 //CommandList: A container of Commands
 function CommandList() {
     this.commands = new Object();
@@ -110,6 +113,9 @@ User.prototype.ban = function(time) {
 User.prototype.unban = function() {
     protocol.unban(this._id);
 };
+User.prototype.toString = function() {
+    return this.username;
+};
 
 
 
@@ -137,6 +143,9 @@ Song.prototype.downdub = function() {
     if (protocol.currentSongID != this._id) return;
     protocol.downdub();
 };
+Song.prototype.toString = function() {
+    return this.name;
+};
 
 
 //Message: represents a message from the chat
@@ -148,6 +157,9 @@ function Message(msg) {
 }
 Message.prototype.delete = function() {
     protocol.deleteChat(this._id);
+};
+Message.prototype.toString = function() {
+    return this.content;
 };
 
 
