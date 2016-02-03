@@ -16,7 +16,7 @@ var bot = require('dub-bot');
 ```js
 //addCommand(name, cooldown, function(command, params, message))
 bot.addCommand('!skip', 10, function(command, params, message){
-	bot.say("Skipping song!"); // sends a message to the chat
+	bot.say("Skipping song!");
 	bot.currentSong.skip();
 });
 ```
@@ -24,10 +24,11 @@ bot.addCommand('!skip', 10, function(command, params, message){
 ## Add a listener
 ```js
 bot.on('chat-message', function(message) {
-	console.log(h(message.time) + " " + message.sender.username + ": " + message.content);
+	console.log(h(message.time) + " " + message.sender + ": " + message); // message.sender and message
+																		  //implicitly converted to String
 });
 bot.on('song-change', function(song) {
-	console.log("Now is playing: " + song.name);
+	console.log("Now is playing: " + song); // same for song
 });
 
 //functions to format the time correctly
