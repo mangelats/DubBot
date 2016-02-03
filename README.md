@@ -14,8 +14,7 @@ var bot = require('dub-bot');
 
 ## Add a command
 ```js
-//addCommand(name, cooldown, function(command, params, message))
-bot.addCommand('!skip', 10, function(command, params, message){
+bot.addCommand('!skip', 10, function(params, message){
 	bot.say("Skipping song!");
 	bot.currentSong.skip();
 });
