@@ -217,8 +217,8 @@ function DubBot() {
     bot = this;
 
     //events registration
-    protocol.on('connected', connected);
-    protocol.on('disconnected', disconnected);
+    protocol.on('connect', connected);
+    protocol.on('disconnect', disconnected);
     protocol.on('song-change', newSong);
     protocol.on('chat-message', chat);
 }
