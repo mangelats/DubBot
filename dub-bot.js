@@ -4,6 +4,7 @@ const EventEmitter = require('events');
 var protocol = require('./protocol.js');
 
 const util = require('util');
+const typeCheck = require('./typecheck.js');
 
 
 
@@ -69,6 +70,7 @@ CommandList.prototype.remove = function(command) {
 };
 CommandList.prototype.execute = function(command_name) {
     if (this.commands[command_name] !== undefined) {
+        Array.prototype.splice.call(arguments, 0, 1)
         return this.commands[command_name].execute.apply(this.commands[command_name], arguments);
     }
     return false;
@@ -93,9 +95,11 @@ function User(data) {
     }
 }
 User.prototype.kick = function(msg) {
+    typeCheck.testArgs(arguments, ['String'], 0, "User.kick");
     protocol.kick(this._id, msg);
 };
 User.prototype.mute = function(time) {
+    typeCheck.testArgs(arguments, ['Number'], 0, "User.mute");
     protocol.mute(this._id);
     if (time !== undefined && time > 0) {
         var id = this._id;
@@ -108,6 +112,7 @@ User.prototype.unmute = function() {
     protocol.unmute(this._id);
 };
 User.prototype.ban = function(time) {
+    typeCheck.testArgs(arguments, ['Number'], 0, "User.ban");
     protocol.ban(this._id, time);
 };
 User.prototype.unban = function() {
@@ -173,7 +178,35 @@ Message.prototype.toString = function() {
 
 
 var bot;
-//DubBot the main dish...
+function connected() {
+    bot.emit('connected');
+};
+function disconnected() {
+    console.log("The bot disconnected.")
+    if (bot.autoreconnect) {
+        setTimeout(reconnect, 5000);
+        console.log("Trying to reconnect in 5 seconds...");
+    }
+};
+function reconnect() {
+    bot.start(bot.username, bot.password, room, true);
+};
+function chat(msg) {
+    var msgo = new Message(msg);
+    if (msg.message.charAt(0) == '!') {
+        var s = msg.message.split(/\s/g);
+        if (bot.commands.execute(s[0], s, msgo)) return;
+    }
+    bot.emit('chat-message', msgo);
+};
+function newSong(songInfo) {
+    bot.currentSong = new Song(songInfo);
+    bot.emit('song-change', bot.currentSong);
+};
+
+
+
+
 function DubBot() {
     this.commands = new CommandList();
     this.autoreconnect = false;
@@ -184,12 +217,14 @@ function DubBot() {
     bot = this;
 
     //events registration
-    protocol.on('connected', this.connected);
-    protocol.on('disconnected', this.disconnected);
-    protocol.on('song-change', this.newSong);
-    protocol.on('chat-message', this.chat);
+    protocol.on('connected', connected);
+    protocol.on('disconnected', disconnected);
+    protocol.on('song-change', newSong);
+    protocol.on('chat-message', chat);
 }
 DubBot.prototype.start = function(username, password, room, autoreconnect) {
+    typeCheck.testArgs(arguments, ['String', 'String', 'String', 'Boolean'], 3, "DubBot.start");
+
     this.username = username;
     this.password = password;
     this.room = room;
@@ -199,39 +234,21 @@ DubBot.prototype.start = function(username, password, room, autoreconnect) {
 
     protocol.connect(username, password, room);
 };
-DubBot.prototype.connected = function() {
-    bot.emit('connected');
-};
-DubBot.prototype.disconnected = function() {
-    console.log("The bot disconnected.")
-    if (bot.autoreconnect) {
-        setTimeout(reconnect, 5000);
-        console.log("Trying to reconnect in 5 seconds...");
-    }
-};
-DubBot.prototype.reconnect = function() {
-    bot.start(bot.username, bot.password, room, true);
-};
-DubBot.prototype.newSong = function(songInfo) {
-    bot.currentSong = new Song(songInfo);
-    bot.emit('song-change', bot.currentSong);
-};
-DubBot.prototype.chat = function(msg) {
-    var msgo = new Message(msg);
-    if (msg.message.charAt(0) == '!') {
-        var s = msg.message.split(/\s/g);
-        if (bot.commands.execute(s[0], s, msgo)) return;
-    }
-    bot.emit('chat-message', msgo);
-};
 DubBot.prototype.addCommand = function(cmd, cd, callback) {
+    typeCheck.testArgs(arguments, ['String', 'Number', 'Function'], 3, "DubBot.addCommand");
+
     if (cmd.charAt(0) != '!') return;
 
     bot.commands.add(new Command(cmd, cd*1000, callback));
 };
 DubBot.prototype.say = function(msg) {
+    typeCheck.testArgs(arguments, ['String'], 1, "DubBot.say");
+
     protocol.sendMsg(msg);
 };
 util.inherits(DubBot, EventEmitter);
+
+
+
 
 module.exports = new DubBot();
