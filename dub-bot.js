@@ -4,7 +4,7 @@ const EventEmitter = require('events');
 const RoomList = require('./lib/roomlist.js');
 //const Protocol = require('./protocol.js'); //set dynamically at constructor
 
-const checkArgs = require('./lib/typecheck.js');
+const checkArgs = require('./lib/utils/typecheck.js');
 
 class DubBot extends EventEmitter {
 	constructor(username, password, callback, Protocol) {
