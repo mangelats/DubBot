@@ -63,8 +63,8 @@ function testType(variable, possible, where, n) {
     var type = variable.constructor.name;
     var i;
     for (i = 0; !found && i < possible.length; ++i) {
-        if (possible[i] !== undefined && possible[i].constructor !== String) {
-            possible[i] = possible[i].constructor.name;
+        if (possible[i] !== undefined && (possible[i]).constructor !== String) {
+            possible[i] = (possible[i]).constructor.name;
         }
         if (type === possible[i]) {
             found = true;
@@ -74,18 +74,16 @@ function testType(variable, possible, where, n) {
         throw new BadTypeException(type, possible, n, where);
     }
 }
-function testArgs(args, possibleTypes, minArgs, where) {
+function checkArgs(args, possibleTypes, where, minArgs) {
     var l = Math.min(args.length, possibleTypes.length);
     if (minArgs && l < minArgs) {
         throw new TooFewArgsException(l, minArgs, where);
     }
     for (let i = 0; i < l; ++i) {
-        if (typeof possibleTypes[i] !== 'Array') {
+        if ((possibleTypes[i]).constructor !== Array) {
             possibleTypes[i] = [possibleTypes[i]];
         }
         testType(args[i], possibleTypes[i], where, i);
     }
 }
-
-module.exports.testType = testType;
-module.exports.testArgs = testArgs;
+module.exports = checkArgs;

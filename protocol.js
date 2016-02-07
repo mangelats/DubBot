@@ -1,350 +1,662 @@
-// 
-//  This file contains how the communication between the server
-// and the client is done. Most of the data is kept and returned
-// raw (probably will need external code to get the required
-// information about them).
-// 
-// Author: Copying
-// 
+// This file contains all the possible calls to the dubtrack API made function.
+// Take a look at the wiki for more information
+
 
 'use strict';
 
-const EventEmitter = require('events');
-const PubNub = require('pubnub');
+//base request which the otheres are made of
+const _request = require('request');
 
-const util = require('util');
+//checkArgs function
+const checkArgs = require('./typeCheck.js');
 
-var request = require('request');
-
-
-
-
-//utils
-const messageTypes = {
-    chat: 'chat-message',
-    songUpdate: 'room_playlist-update'
-};
-function encodeHTML(str) {
-    if (typeof str !== 'string') return str;
-
-    return str.replace(/&/g, "&amp;")
-              .replace(/'/g, "&#39;")
-              .replace(/"/g, "&#34;")
-              .replace(/</g, "&lt;")
-              .replace(/>/g, "&gt;");
-}
-function correctCode(error, response, where) {
-    if (error) {
-        console.error(where + " Error on the connection: " + error);
-        return false
-    }
-
-    if (response.statusCode !== 200) {
-        console.error(where + " Some unxpected HTTP status code has been recived: " + response.statusCode);
-        return false;
-    }
-
-    return true;
+//check for request errrors
+function errorCheck(error, response, body, where) {
+	//TO DO
+	return true;
 }
 
+class Protocol {
+	constructor() {
+		//we make a custom request with its own cookies (allows logging in with multiple accounts)
+		this.request = _request.defaults({
+			baseUrl: 'https://api.dubtrack.fm/',
+			followRedirect: false,
+			json: true,
+			gzip: true,
+			jar: _request.jar()
+		});
+	}
+
+// ACCOUNT
+	login(username, password, callback) {
+		checkArgs(arguments, ['String', 'String', 'Function'], "[Protocol] login", 2);
+
+		this.request({
+			method: 'POST',
+			url: 'auth/dubtrack',
+			form: {
+				username: username,
+				password: password
+			}
+		}, function(error, response, body){
+			if (!errorCheck(error, response, body, "[Protocol] login")) return;
+			if (callback != undefined) callback(body);
+		});
+	}
+
+	loguot(callback) {
+		checkArgs(arguments, ['Function'], "[Protocol] logout");
+
+		this.request({
+			method: 'GET',
+			url: 'auth/logout'
+		}, function(error, response, body){
+			if (!errorCheck(error, response, body, "[Protocol] logout")) return;
+			if (callback != undefined) callback(body);
+		});
+	}
+
+	getSessionInfo(callback) {
+		checkArgs(arguments, ['Function'], "[Protocol] getSessionInfo");
+
+		this.request({
+			method: 'GET',
+			url: 'auth/session'
+		}, function(error, response, body){
+			if (!errorCheck(error, response, body, "[Protocol] getSessionInfo")) return;
+			if (callback != undefined) callback(body);
+		});
+	}
 
 
 
-// internal variables
-var cookiesJar = request.jar();     //Where the cookies are saved
 
-var room;           //room id (at the start, room url)
-var chatChannel;    //pubnub's chat channel
-var pubnub;         //PubNub object (chat reciver)
+// User
+	getUserInfo(user, callback) {
+		checkArgs(arguments, ['String', 'Function'], "[Protocol] getUserInfo", 1);
+
+		this.request({
+			method: 'GET',
+			url: 'user/' + user
+		}, function(error, response, body){
+			if (!errorCheck(error, response, body, "[Protocol] getUserInfo")) return;
+			if (callback != undefined) callback(body);
+		});
+	}
+
+	getUserImage(userid, large, callback) {
+		checkArgs(arguments, ['String', 'Boolean', 'Function'], "[Protocol] getUserImage", 2);
+
+		this.request({
+			method: 'GET',
+			url: 'user/' + userid + '/image' + (large ? '/large' : '')
+		}, function(error, response, body){
+			if (!errorCheck(error, response, body, "[Protocol] getUserImage")) return;
+			if (callback != undefined) callback(body);
+		});
+	}
+
+	following(userid, callback) {
+		checkArgs(arguments, ['String', 'Function'], "[Protocol] following", 1);
+
+		this.request({
+			method: 'GET',
+			url: 'user/' + userid + '/following'
+		}, function(error, response, body){
+			if (!errorCheck(error, response, body, "[Protocol] following")) return;
+			if (callback != undefined) callback(body);
+		});
+	}
+
+	follow(userid, callback) {
+		checkArgs(arguments, ['String', 'Function'], "[Protocol] follow", 1);
+
+		this.request({
+			method: 'POST',
+			url: 'user/' + userid + '/following'
+		}, function(error, response, body){
+			if (!errorCheck(error, response, body, "[Protocol] follow")) return;
+			if (callback != undefined) callback(body);
+		});
+	}
+
+	unfollow(userid, callback) {
+		checkArgs(arguments, ['String', 'Function'], "[Protocol] unfollow", 1);
+
+		this.request({
+			method: 'DELETE',
+			url: 'user/' + userid + '/following'
+		}, function(error, response, body){
+			if (!errorCheck(error, response, body, "[Protocol] unfollow")) return;
+			if (callback != undefined) callback(body);
+		});
+	}
+
+	followers(userid, callback) {
+		checkArgs(arguments, ['String', 'Function'], "[Protocol] followers", 1);
+
+		this.request({
+			method: 'GET',
+			url: 'user/' + userid + '/followers'
+		}, function(error, response, body){
+			if (!errorCheck(error, response, body, "[Protocol] followers")) return;
+			if (callback != undefined) callback(body);
+		});
+	}
+
+
+
+
+// PLAYLIST
+	playlists(callback) {
+		checkArgs(arguments, ['Function'], "[Protocol] playlists");
+
+		this.request({
+			method: 'GET',
+			url: 'playlist'
+		}, function(error, response, body){
+			if (!errorCheck(error, response, body, "[Protocol] playlists")) return;
+			if (callback != undefined) callback(body);
+		});
+	}
+
+	makePlaylist(name, callback) {
+		checkArgs(arguments, ['String', 'Function'], "[Protocol] makePlaylist", 1);
+
+		this.request({
+			method: 'POST',
+			url: 'playlist',
+			form: {
+				name: name
+			}
+		}, function(error, response, body){
+			if (!errorCheck(error, response, body, "[Protocol] makePlaylist")) return;
+			if (callback != undefined) callback(body);
+		});
+	}
+
+	deletePlaylist(playlistid, callback) {
+		checkArgs(arguments, ['String', 'Function'], "[Protocol] deletePlaylist", 1);
+
+		this.request({
+			method: '',
+			url: ''
+		}, function(error, response, body){
+			if (!errorCheck(error, response, body, "[Protocol] deletePlaylist")) return;
+			if (callback != undefined) callback(body);
+		});
+	}
+
+	playlistSongs(playlistid, page, name, callback) {
+		checkArgs(arguments, ['String', 'Number', 'String', 'Function'], "[Protocol] playlistSongs", 1);
+
+		this.request({
+			method: 'GET',
+			url: 'playlist/' + playlistid + '/songs',
+			form: {
+				page: (page ? page : ''),
+				name: (name ? name : '')
+			}
+		}, function(error, response, body){
+			if (!errorCheck(error, response, body, "[Protocol] playlistSongs")) return;
+			if (callback != undefined) callback(body);
+		});
+	}
+
+	playlistAddSong(playlistid, type, fkid, callback) {
+		checkArgs(arguments, ['String', 'String', 'String', 'Function'], "[Protocol] playlistAddSong", 3);
+
+		this.request({
+			method: 'POST',
+			url: '/playlist/' + playlistid + '/songs',
+			form: {
+				type: type,
+				fkid: fkid
+			}
+		}, function(error, response, body){
+			if (!errorCheck(error, response, body, "[Protocol] playlistAddSong")) return;
+			if (callback != undefined) callback(body);
+		});
+	}
+
+	playlistRemoveSong(playlistid, songid, callback) {
+		checkArgs(arguments, ['String', 'String', 'Function'], "[Protocol] playlistRemoveSong", 2);
+
+		this.request({
+			method: 'DELETE',
+			url: '/playlist/' + playlistid + '/songs/' + songid
+		}, function(error, response, body){
+			if (!errorCheck(error, response, body, "[Protocol] playlistRemoveSong")) return;
+			if (callback != undefined) callback(body);
+		});
+	}
+
+
+
+
+// ROOM
+	publicRoomsList(callback) {
+		checkArgs(arguments, ['Function'], "[Protocol] publicRoomsList");
+
+		this.request({
+			method: 'GET',
+			url: 'room'
+		}, function(error, response, body){
+			if (!errorCheck(error, response, body, "[Protocol] publicRoomsList")) return;
+			if (callback != undefined) callback(body);
+		});
+	}
+
+	makeRoom(roomObject, callback) {
+		checkArgs(arguments, ['Obejct', 'Function'], "[Protocol] makeRoom", 1);
+
+		this.request({
+			method: 'POST',
+			url: 'room',
+			form: roomObject
+		}, function(error, response, body){
+			if (!errorCheck(error, response, body, "[Protocol] makeRoom")) return;
+			if (callback != undefined) callback(body);
+		});
+	}
+
+	updateRoom(roomObject, callback) {
+		checkArgs(arguments, ['Obejct', 'Function'], "[Protocol] updateRoom", 1);
+
+		this.request({
+			method: 'PUT',
+			url: 'room',
+			form: roomObject
+		}, function(error, response, body){
+			if (!errorCheck(error, response, body, "[Protocol] updateRoom")) return;
+			if (callback != undefined) callback(body);
+		});
+	}
+
+	roomDetails(room, callback) {
+		checkArgs(arguments, ['String', 'Function'], "[Protocol] roomDetails", 1);
+
+		this.request({
+			method: 'GET',
+			url: 'room/' + room
+		}, function(error, response, body){
+			if (!errorCheck(error, response, body, "[Protocol] roomDetails")) return;
+			if (callback != undefined) callback(body);
+		});
+	}
+
+	roomUsers(roomid, callback) {
+		checkArgs(arguments, ['String', 'Function'], "[Protocol] roomUsers", 1);
+
+		this.request({
+			method: 'GET',
+			url: 'room/' + roomid + '/users'
+		}, function(error, response, body){
+			if (!errorCheck(error, response, body, "[Protocol] roomUsers")) return;
+			if (callback != undefined) callback(body);
+		});
+	}
+
+	roomUserDetails(roomid, userid, callback) {
+		checkArgs(arguments, ['String', 'String', 'Function'], "[Protocol] roomUserDetails", 2);
+
+		this.request({
+			method: 'GET',
+			url: 'room/' + roomid + '/users/' + userid
+		}, function(error, response, body){
+			if (!errorCheck(error, response, body, "[Protocol] roomUserDetails")) return;
+			if (callback != undefined) callback(body);
+		});
+	}
+
+	leaveRoom(roomid, callback) {
+		checkArgs(arguments, ['String', 'Function'], "[Protocol] leaveRoom", 1);
+
+		this.request({
+			method: 'REMOVE',
+			url: 'room/' + roomid + '/users'
+		}, function(error, response, body){
+			if (!errorCheck(error, response, body, "[Protocol] leaveRoom")) return;
+			if (callback != undefined) callback(body);
+		});
+	}
+
+	sendRoomMsg(roomid, message, realTimeChannel, callback) {
+		checkArgs(arguments, ['String', 'String', 'String', 'Function'], "[Protocol] sendRoomMsg", 3);
+
+		this.request({
+			method: 'POST',
+			url: 'room/' + roomid,
+			form: {
+				message: message,
+				realTimeChannel: realTimeChannel,
+				time: Date.now(),
+				type: 'chat-message'
+			}
+		}, function(error, response, body){
+			if (!errorCheck(error, response, body, "[Protocol] sendRoomMsg")) return;
+			if (callback != undefined) callback(body);
+		});
+	}
+
+	deleteRommMsg(roomid, msgid, callback) {
+		checkArgs(arguments, ['String', 'String', 'Function'], "[Protocol] deleteRommMsg", 2);
+
+		this.request({
+			method: 'DELETE',
+			url: 'room/' + roomid + '/' + msgid
+		}, function(error, response, body){
+			if (!errorCheck(error, response, body, "[Protocol] deleteRommMsg")) return;
+			if (callback != undefined) callback(body);
+		});
+	}
 
 
 
 
 
+// ROOM MODERATION
+	kickUser(roomid, userid, realTimeChannel, message, callback) {
+		checkArgs(arguments, ['String', 'String', 'String', ['String', 'Function'], 'Function'], "[Protocol] kickUser", 2);
+
+		if (message === undefined) {
+			message = '';
+		} else if (message.constructor === Function) {
+			callback = message;
+			message = '';
+		}
+
+		this.request({
+			method: 'POST',
+			url: 'chat/kick/' + roomid + '/user/' + userid,
+			form: {
+				realTimeChannel: realTimeChannel,
+				message: message
+			}
+		}, function(error, response, body){
+			if (!errorCheck(error, response, body, "[Protocol] kickUser")) return;
+			if (callback != undefined) callback(body);
+		});
+	}
+
+	muteUser(roomid, userid, realTimeChannel, callback) {
+		checkArgs(arguments, ['String', 'String', 'String', 'Function'], "[Protocol] muteUser", 2);
+
+		this.request({
+			method: 'POST',
+			url: 'chat/mute/' + roomid + '/user/' + userid,
+			form: {
+				realTimeChannel: realTimeChannel
+			}
+		}, function(error, response, body){
+			if (!errorCheck(error, response, body, "[Protocol] muteUser")) return;
+			if (callback != undefined) callback(body);
+		});
+	}
+
+	unmuteUser(roomid, userid, realTimeChannel, callback) {
+		checkArgs(arguments, ['String', 'String', 'String', 'Function'], "[Protocol] unmuteUser", 2);
+
+		this.request({
+			method: 'DELETE',
+			url: 'chat/mute/' + roomid + '/user/' + userid,
+			form: {
+				realTimeChannel: realTimeChannel
+			}
+		}, function(error, response, body){
+			if (!errorCheck(error, response, body, "[Protocol] unmuteUser")) return;
+			if (callback != undefined) callback(body);
+		});
+	}
+
+	banUser(roomid, userid, realTimeChannel, time, callback) {
+		checkArgs(arguments, ['String', 'String', 'String', ['Number', 'Function'], 'Function'], "[Protocol] banUser", 2);
+
+		if (time === undefined) {
+			time = 0;
+		} else if (time.constructor === Function) {
+			callback = time;
+			time = 0;
+		}
+
+		this.request({
+			method: 'POST',
+			url: 'chat/ban/' + roomid + '/user/' + userid,
+			form: {
+				realTimeChannel: realTimeChannel,
+				time: time
+			}
+		}, function(error, response, body){
+			if (!errorCheck(error, response, body, "[Protocol] banUser")) return;
+			if (callback != undefined) callback(body);
+		});
+	}
+
+	unbanUser(roomid, userid, realTimeChannel, callback) {
+		checkArgs(arguments, ['String', 'String', 'Function'], "[Protocol] unbanUser", 2);
+
+		this.request({
+			method: 'DELETE',
+			url: 'chat/ban/' + roomid + '/user/' + userid,
+			form: {
+				realTimeChannel: realTimeChannel
+			}
+		}, function(error, response, body){
+			if (!errorCheck(error, response, body, "[Protocol] unbanUser")) return;
+			if (callback != undefined) callback(body);
+		});
+	}
+
+	setUserRole(roomid, userid, roleid, callback) {
+		checkArgs(arguments, ['String', 'String', 'String', 'Function'], "[Protocol] unbanUser", 3);
+
+		this.request({
+			method: 'POST',
+			url: 'chat/' + roleid + '/' + roomid + '/user/' + userid
+		}, function(error, response, body){
+			if (!errorCheck(error, response, body, "[Protocol] unbanUser")) return;
+			if (callback != undefined) callback(body);
+		});
+	}
 
 
-//Configure the connection
-request = request.defaults({        //set defaults for the requests
-    baseUrl: 'https://api.dubtrack.fm/',
-    followRedirect: false,
-    json: true,
-    gzip: true,
-    jar: cookiesJar
-});
 
 
+// ROOM QUEUE
+	roomQueue(roomid, callback) {
+		checkArgs(arguments, ['String', 'Function'], "[Protocol] roomQueue", 1);
 
+		this.request({
+			method: 'GET',
+			url: 'room/' + roomid + '/playlist'
+		}, function(error, response, body){
+			if (!errorCheck(error, response, body, "[Protocol] roomQueue")) return;
+			if (callback != undefined) callback(body);
+		});
+	}
 
+	roomQueueDetails(roomid, callback) {
+		checkArgs(arguments, ['String', 'Function'], "[Protocol] roomQueueDetails", 1);
 
+		this.request({
+			method: 'GET',
+			url: 'room/' + roomid + '/playlist/details'
+		}, function(error, response, body){
+			if (!errorCheck(error, response, body, "[Protocol] roomQueueDetails")) return;
+			if (callback != undefined) callback(body);
+		});
+	}
 
+	currentSong(roomid, callback) {
+		checkArgs(arguments, ['String', 'Function'], "[Protocol] currentSong", 1);
 
+		this.request({
+			method: 'GET',
+			url: 'room/' + roomid + '/playlist/active'
+		}, function(error, response, body){
+			if (!errorCheck(error, response, body, "[Protocol] currentSong")) return;
+			if (callback != undefined) callback(body);
+		});
+	}
 
+	currentSongDubs(roomid, callback) {
+		checkArgs(arguments, ['String', 'Function'], "[Protocol] currentSongDubs", 1);
 
-//public interface
-function Protocol() {
-    EventEmitter.call(this);
-    
-    this.connected = false;     //If the bot is connected
-    this.me = undefined;        //Bot's user basic information
-    this.currentSongID = '';    //Current song's ID.
+		this.request({
+			method: 'GET',
+			url: 'room/' + roomid + '/playlist/active/dubs'
+		}, function(error, response, body){
+			if (!errorCheck(error, response, body, "[Protocol] currentSongDubs")) return;
+			if (callback != undefined) callback(body);
+		});
+	}
+
+	skip(roomid, songid, callback) {
+		checkArgs(arguments, ['String', 'String', 'Function'], "[Protocol] skip", 2);
+
+		this.request({
+			method: 'POST',
+			url: 'chat/skip/' + roomid + '/' + songid
+		}, function(error, response, body){
+			if (!errorCheck(error, response, body, "[Protocol] skip")) return;
+			if (callback != undefined) callback(body);
+		});
+	}
+
+	reorderQueue(roomid, newOeder, callback) {
+		checkArgs(arguments, ['String', 'Object', 'Function'], "[Protocol] reorderQueue", 2);
+
+		this.request({
+			method: '',
+			url: ''
+		}, function(error, response, body){
+			if (!errorCheck(error, response, body, "[Protocol] reorderQueue")) return;
+			if (callback != undefined) callback(body);
+		});
+	}
+
+	removeUserSong(roomid, userid, callback) {
+		checkArgs(arguments, ['String', 'String', 'Function'], "[Protocol] removeUserSong", 2);
+
+		this.request({
+			method: 'DELETE',
+			url: 'room/' + roomid + '/queue/user/' + userid
+		}, function(error, response, body){
+			if (!errorCheck(error, response, body, "[Protocol] removeUserSong")) return;
+			if (callback != undefined) callback(body);
+		});
+	}
+
+	removeDJ(roomid, userid, callback) {
+		checkArgs(arguments, ['String', 'String', 'Function'], "[Protocol] removeDJ", 2);
+
+		this.request({
+			method: 'DELETE',
+			url: 'room/' + roomid + '/queue/user/' + userid + '/all'
+		}, function(error, response, body){
+			if (!errorCheck(error, response, body, "[Protocol] removeDJ")) return;
+			if (callback != undefined) callback(body);
+		});
+	}
+
+	pauseState(roomid, userid, paused, callback) {
+		checkArgs(arguments, ['String', 'Boolean', 'Function'], "[Protocol] pauseState");
+
+		this.request({
+			method: 'PUT',
+			url: 'room/' + roomid + '/queue/user/' + userid + '/pause',
+			form: {
+				pause: paused ? '1' : '0'
+			}
+		}, function(error, response, body){
+			if (!errorCheck(error, response, body, "[Protocol] pauseState")) return;
+			if (callback != undefined) callback(body);
+		});
+	}
+
+	vote(roomid, userid, dub, callback) {
+		checkArgs(arguments, ['String', 'String', ['Boolean', 'String'], 'Function'], "[Protocol] vote", 2);
+
+		this.request({
+			method: 'POST',
+			url: 'room/' + roomid + '/playlist/' + songid + '/dubs',
+			form: {
+				type: (dub.constructor === String ? dub : (dub ? 'updub' : 'downdub'))
+			}
+		}, function(error, response, body){
+			if (!errorCheck(error, response, body, "[Protocol] vote")) return;
+			if (callback != undefined) callback(body);
+		});
+	}
+
+	queueLockState(roomid, locked, callback) {
+		checkArgs(arguments, ['String', 'Boolean', 'Function'], "[Protocol] queueLock", 1);
+
+		this.request({
+			method: 'POST',
+			url: 'room/' + roomid + '/lockQueue',
+			form: {
+				lockQueue: locked ? '1' : '0'
+			}
+		}, function(error, response, body){
+			if (!errorCheck(error, response, body, "[Protocol] queueLock")) return;
+			if (callback != undefined) callback(body);
+		});
+	}
+
+// ROOM USER'S QUEUE
+	userQueue(roomid, callback) {
+		checkArgs(arguments, ['String', 'Function'], "[Protocol] userQueue", 1);
+
+		this.request({
+			method: 'GET',
+			url: 'user/session/room/' + roomid + '/queue'
+		}, function(error, response, body){
+			if (!errorCheck(error, response, body, "[Protocol] userQueue")) return;
+			if (callback != undefined) callback(body);
+		});
+	}
+
+	userQueueAdd(roomid, type, fkid, callback) {
+		checkArgs(arguments, ['String', 'String', 'String', 'Function'], "[Protocol] userQueueAdd", 3);
+
+		this.request({
+			method: 'POST',
+			url: 'room/' + roomid + '/playlist',
+			form: {
+				type: type,
+				fkid: fkid
+			}
+		}, function(error, response, body){
+			if (!errorCheck(error, response, body, "[Protocol] userQueueAdd")) return;
+			if (callback != undefined) callback(body);
+		});
+	}
+
+	userQueueDelete(roomid, songid, callback) {
+		checkArgs(arguments, ['String', 'String', 'Function'], "[Protocol] userQueueDelete", 1);
+
+		this.request({
+			method: 'DELETE',
+			url: 'room/' + roomid + '/playlist/' + songid
+		}, function(error, response, body){
+			if (!errorCheck(error, response, body, "[Protocol] userQueueDelete")) return;
+			if (callback != undefined) callback(body);
+		});
+	}
+
+	userQueueDeleteAll(roomid, callback) {
+		checkArgs(arguments, ['String', 'Function'], "[Protocol] userQueueDeleteAll", 1);
+
+		this.request({
+			method: 'GET',
+			url: 'room/' + roomid + '/playlist'
+		}, function(error, response, body){
+			if (!errorCheck(error, response, body, "[Protocol] userQueueDeleteAll")) return;
+			if (callback != undefined) callback(body);
+		});
+	}
 }
 
-Protocol.prototype.connect = function(username, password, r) {
-    room = r;
-
-    //log in
-    request({
-        method: 'POST',
-        url: 'auth/dubtrack',
-        form: {
-            username: username,
-            password: password
-        }
-    }, loginResponse);
-};
-Protocol.prototype.sendMsg = function(message) {
-    if (!this.connected) return;
-
-    request({
-        method: 'POST',
-        url: 'chat/' + room,
-        body: {
-            type: messageTypes.chat,
-            realTimeChannel: chatChannel,
-            time: Date.now(),
-            message: message
-        }
-    }, function(error, response, body){
-        correctCode(error, response, "[Chat Message Sending]");
-    });
-};
-Protocol.prototype.deleteChat = function(chatID) {
-    if (!this.connected) return;
-
-    request({
-        method: 'DELETE',
-        url: 'chat/' + room + '/' + chatID
-    }, function(error, response, body){
-        correctCode(error, response, "[Chat Message Deletion]");
-    });
-};
-Protocol.prototype.updub = function() {
-    if (!this.connected) return;
-
-    request({
-        method: 'POST',
-        url: 'room/' + room + '/playlist/' + this.currentSongID +'/dubs',
-        form: {
-            type: 'updub'
-        }
-    }, function(error, response, body){
-        correctCode(error, response, "[Song Updub]");
-    });
-};
-Protocol.prototype.downdub = function() {
-    if (!this.connected) return;
-    
-    request({
-        method: 'POST',
-        url: 'room/' + room + '/playlist/' + this.currentSongID +'/dubs',
-        form: {
-            type: 'downdub'
-        }
-    }, function(error, response, body){
-        correctCode(error, response, "[Song Downdub]");
-    });
-};
-Protocol.prototype.skip = function() {
-    if (!this.connected || this.currentSongID == '') return;
-
-    request({
-        method: 'POST',
-        url: 'chat/skip/' + room + '/' + this.currentSongID,
-        form: {
-            realTimeChannel: chatChannel
-        }
-    }, function(error, response, body){
-        correctCode(error, response, "[Song Skip]");
-    });
-};
-Protocol.prototype.kick = function(userID, msg) {
-    if (!this.connected) return;
-
-    request({
-        method: 'POST',
-        url: 'chat/kick/' + room + '/user/' + userID,
-        form: {
-            realTimeChannel: chatChannel,
-            message: msg ? encodeHTML(msg) : ''
-        }
-    }, function(error, response, body){
-        correctCode(error, response, "[User Kick]");
-    });
-};
-Protocol.prototype.mute = function(userID) {
-    if (!this.connected) return;
-
-    request({
-        method: 'POST',
-        url: 'chat/mute/' + room + '/user/' + userID,
-        form: {
-            realTimeChannel: chatChannel
-        }
-    }, function(error, response, body){
-        correctCode(error, response, "[User Mute]");
-    });
-};
-Protocol.prototype.unmute = function(userID) {
-    if (!this.connected) return;
-
-    request({
-        method: 'DELETE',
-        url: 'chat/mute/' + room + '/user/' + userID,
-        form: {
-            realTimeChannel: chatChannel
-        }
-    }, function(error, response, body){
-        correctCode(error, response, "[User Unmute]");
-    });
-};
-Protocol.prototype.ban = function(userID, time) {
-    if (!this.connected) return;
-
-    request({
-        method: 'POST',
-        url: 'chat/ban/' + room + '/user/' + userID,
-        form: {
-            realTimeChannel: chatChannel,
-            time: (time && time > 0) ? time : 0
-        }
-    }, function(error, response, body){
-        correctCode(error, response, "[User Ban]");
-    });
-};
-Protocol.prototype.unban = function(userID) {
-    if (!this.connected) return;
-
-    request({
-        method: 'DELETE',
-        url: 'chat/ban/' + room + '/user/' + userID,
-        form: {
-            realTimeChannel: chatChannel
-        }
-    }, function(error, response, body){
-        correctCode(error, response, "[User Unban]");
-    });
-};
-Protocol.prototype.getUser = function(userid, callback, that) {
-    request({
-        method: 'GET',
-        url: 'user/' + userid
-    }, function(error, response, body){
-        if (!correctCode(error, response, "[User Info Get]")) return;
-        if (callback != undefined) {
-            callback(body, that);
-        }
-    });
-};
-util.inherits(Protocol, EventEmitter);
-
-
-
-
-
-
-
-
-
-//private interface (where things really happen)
-//Mostly a hidden chain of callbacks
-
-//log in and connection chain
-function loginResponse(error, response, body) {
-    if (!correctCode(error, response, "[Log in]")) return;
-
-    //get information of the user who connected.
-    request({
-        method: 'GET',
-        url: 'auth/session'
-    }, sessionResponse);
-}
-function sessionResponse(error, response, body) {
-    if (!correctCode(error, response, "[Connecting]")) return;
-
-    //save the basic information about the bot as user
-    protocol.me = {
-        username: body.data.username,
-        _id: body.data._id
-    };
-
-    //prepare client to connect the chat (requires the id which we didn't know 'till now)
-    pubnub = PubNub({
-        backfill: false,
-        restore: false,
-        subscribe_key: 'sub-c-2b40f72a-6b59-11e3-ab46-02ee2ddab7fe', //found the key randomly... seems to work perfectly though
-        ssl: true,
-        uuid: protocol.me._id
-    });
-
-    //get information about the room (used to connect)
-    request({
-        method: 'GET',
-        url: ('room/' + room)
-    }, roomInfoResponse);
-}
-function roomInfoResponse(error, response, body) {
-    if (!correctCode(error, response, "[Connecting]")) return;
-
-    chatChannel = body.data.realTimeChannel;
-    room = body.data._id;
-    pubnub.subscribe({
-        channel: chatChannel,
-        connect: ready,
-        disconnect: disconnected,
-        message: chatEvent,
-        error: chatErrorEvent
-    });
-
-}
-function ready(msg) {
-    //aks for the current song
-    request({
-        method: 'GET',
-        url: 'room/' + room + '/playlist/active'
-    }, function(error, response, body){
-        if (!correctCode(error, response, "[Getting Song]")) return;
-        onSongUpdate(body.data);
-    });
-
-    protocol.connected = true;
-    protocol.emit('connected');
-}
-function disconnected(msg) {
-    this.connected = false;
-    this.me = undefined;
-    this.currentSongID = '';
-
-    console.log("You disconnected from the server");
-
-    protocol.emit('disconnected');
-}
-function chatEvent(msg) {
-    if (msg.type == messageTypes.chat) {
-        protocol.emit('chat-message', msg);
-    } else if (msg.type == messageTypes.songUpdate){
-        onSongUpdate(msg);
-    }
-}
-function chatErrorEvent(err) {
-    console.error(err);
-}
-function onSongUpdate(data) {
-    if (data != undefined && data.song != undefined && protocol.currentSongID != data.song._id) {
-        protocol.currentSongID = data.song._id;
-        protocol.emit('song-change', data);
-    }
-}
-
-
-var protocol = new Protocol();
-module.exports = protocol;
+module.exports = Protocol;
