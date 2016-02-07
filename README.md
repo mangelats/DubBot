@@ -1,46 +1,4 @@
 # DubBot
-A simple interface to make bots for budtrack.fm
+Testing branch.
 
-## Intalling dub-bot
-
-```
-npm intall dub-bot
-```
-
-## Get the package
-```js
-var bot = require('dub-bot');
-```
-
-## Add a command
-```js
-bot.addCommand('!skip', 10, function(params, message){
-	bot.say("Skipping song!");
-	bot.currentSong.skip();
-});
-```
-
-## Add a listener
-```js
-bot.on('chat-message', function(message) {
-	console.log(h(message.time) + " " + message.sender + ": " + message); // message.sender and message
-																		  //implicitly converted to String
-});
-bot.on('song-change', function(song) {
-	console.log("Now is playing: " + song); // same for song
-});
-
-//functions to format the time correctly
-function d2(num) {
-	return (num < 10) ? ("0" + num) : ("" + num);
-}
-function h(time) {
-	return "[" + d2(time.getHours()) + ":" + d2(time.getMinutes()) + ":" + d2(time.getSeconds()) + "]";
-}
-```
-
-## Connect to the room
-This last step is recomended to be done at the end (so all the features are loaded when it connects).
-```js
-bot.connect('username', 'password', 'room');
-```
+No `package.json` because this won't be published to npm until it's stable.
