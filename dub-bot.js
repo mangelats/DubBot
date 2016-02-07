@@ -1,16 +1,16 @@
 'use strict';
 
 const EventEmitter = require('events');
-const RoomList = require('./roomlist.js');
+const RoomList = require('./lib/roomlist.js');
 //const Protocol = require('./protocol.js'); //set dynamically at constructor
 
-const checkArgs = require('./typecheck.js');
+const checkArgs = require('./lib/typecheck.js');
 
 class DubBot extends EventEmitter {
 	constructor(username, password, callback, Protocol) {
 		checkArgs(arguments, ['String', 'String', 'Function'], "[DubBot] constructor", 2);
 
-		if (Protocol == undefined) Protocol = require('./protocol.js');
+		if (Protocol == undefined) Protocol = require('./lib/protocol.js');
 
 		super();
 
