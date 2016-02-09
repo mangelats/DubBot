@@ -14,6 +14,8 @@ class DubBot extends EventEmitter {
 
 		super();
 
+		this.username = username;
+
 		this.protocol = new Protocol();
 		this.rooms = new RoomList(this);
 		this.connected = false;
@@ -34,6 +36,35 @@ class DubBot extends EventEmitter {
 		checkArgs(arguments, ['String'], "[DubBot] join", 1);
 		
 		return this.rooms.add(room);
+	}
+
+	getUser(user, callback) {
+		checkArgs(arguments, ['String', 'Function'], "[DubBot] join", 2);
+		this.protocol.user.info(user, function(data){
+			callback(new User(data));
+		});
+	}
+
+	sendPM(users, message) {
+		checkArgs(arguments, [['Array', 'User'], 'Function'], "[DubBot] join", 2);
+
+		if (users.constructor !== Array) {
+			users = [users];
+		}
+
+		let usersid = [];
+		for (let user of users) {
+			usersid.push(user.id);
+		}
+
+		let that = this;
+		this.dubbot.protocol.pm.get(usersid, function(data){
+			that.dubbot.protocol.pm.send(data.id, message);
+		});
+	}
+
+	toString() {
+		return this.username;
 	}
 }
 
