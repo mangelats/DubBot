@@ -10,7 +10,7 @@ class DubBot extends EventEmitter {
 	constructor(username, password, callback, Protocol) {
 		checkArgs(arguments, ['String', 'String', 'Function'], "[DubBot] constructor", 2);
 
-		if (Protocol == undefined) Protocol = require('./lib/protocol.js');
+		if (Protocol == undefined) Protocol = require('./lib/protocol/protocol.js');
 
 		super();
 
@@ -20,8 +20,8 @@ class DubBot extends EventEmitter {
 		this.id = '';
 
 		var that = this;
-		this.protocol.login(username, password, function(){
-			that.protocol.getSessionInfo(function(body){
+		this.protocol.account.login(username, password, function(){
+			that.protocol.account.info(function(body){
 				that.id = body.data._id;
 				that.connected = true;
 				that.emit('log in');
