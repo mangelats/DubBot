@@ -4,7 +4,43 @@ Testing branch.
 No `package.json` because this won't be published to npm until it's stable.
 
 # Work in progress
-Most of this library is finished but I'm still working on it.
+Most of this library is finished but I'm still working on it (sorry for the documentation, I know it's not good enough).
+
+# The basics
+## Log in
+```js
+var bot = new DubBot('username', 'password');
+```
+
+## Join a room
+```js
+var room = bot.join('room url or id');
+```
+
+## send a message to the room chat
+```js
+room.say("Hello!");
+```
+
+## Events
+It uses the `events` `npm` module.
+```js
+room.on('chat-message', function(message){
+	console.log("Message: " + message);
+});
+```
+
+## Add a command
+Commands must start with exclamation mark (!). (Thats allows to make the code more efficient and avoid unwanted calls).
+```js
+room.addCommand('!command', cooldown, function(args, message){
+	console.log("!command called!");
+});
+```
+`cooldown` is optional. If a function is called while is in cooldown, it won't trigger the function (useful to avoid chat spam).
+
+The function returns `args` and `message` to the callback which are, respectively, the message splitted by spaces (like how it works in C with argc and arcv) and the `Message` object (the same as the `chat-message` event).
+
 
 # Features overview
 ## Multiple accounts
@@ -21,7 +57,6 @@ var room2_1 = bot2.join('room1-url');
 ```
 
 ## Add commands
-Commands must start with exclamation mark (!)
 ```js
 //cooldown is in seconds and optional
 room.addCommand('!command', cooldown, function(args, message){
