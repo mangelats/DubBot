@@ -5,6 +5,8 @@ const RoomList = require('./lib/roomlist.js');
 //const Protocol = require('./protocol.js'); //set dynamically at constructor
 
 const checkArgs = require('./lib/utils/typecheck.js');
+const User = require('./lib/user.js');
+const PMManager = require('./lib/conversationmanager.js');
 
 class DubBot extends EventEmitter {
 	constructor(username, password, callback, Protocol) {
@@ -19,6 +21,7 @@ class DubBot extends EventEmitter {
 		this.protocol = new Protocol();
 		this.rooms = new RoomList(this);
 		this.connected = false;
+		this.pm = new PMManager(this);
 		this.id = '';
 
 		var that = this;
@@ -28,6 +31,7 @@ class DubBot extends EventEmitter {
 				that.connected = true;
 				that.emit('log in');
 				that.rooms._joinRooms();
+				that.pm.inteval = setInterval(function(){ that.pm._checkPM(); }, that.pm.time);
 			});
 		});
 	}
@@ -40,13 +44,22 @@ class DubBot extends EventEmitter {
 
 	getUser(user, callback) {
 		checkArgs(arguments, ['String', 'Function'], "[DubBot] join", 2);
+		let that = this;
 		this.protocol.user.info(user, function(data){
-			callback(new User(data));
+			callback(new User(data, undefined, that));
 		});
 	}
 
 	sendPM(users, message) {
-		checkArgs(arguments, [['Array', 'User'], 'Function'], "[DubBot] join", 2);
+		checkArgs(arguments, [['Array', 'User'], 'String'], "[DubBot] sendPM", 2);
+		this.getConversation(users, function(conver){
+			conver.send(message);
+		});
+
+	}
+
+	getConversation(users, callback) {
+		checkArgs(arguments, [['Array', 'User'], 'Function'], "[DubBot] getPMConversation", 2);
 
 		if (users.constructor !== Array) {
 			users = [users];
@@ -57,10 +70,10 @@ class DubBot extends EventEmitter {
 			usersid.push(user.id);
 		}
 
-		let that = this;
-		this.dubbot.protocol.pm.get(usersid, function(data){
-			that.dubbot.protocol.pm.send(data.id, message);
-		});
+		this.pm.getByUsers(usersid, callback);
+	}
+	_newPM(conver){
+		this.emit('private-message', conver);
 	}
 
 	toString() {
