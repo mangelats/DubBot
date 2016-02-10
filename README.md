@@ -54,8 +54,16 @@ bot.on('private-message', function(conversation){
 ## Implicit convertions
 Most objects can be implicitly convertd to string, usually to some string that represents them.
 
+An example of this is the following:
+```js
+room.addCommand('!command', function(args, message){
+	room.say(message.sender + " has activated the command!");
+});
+```
+`message.sender` is a `User` which will implicitly convert to it's username. `message` itself is a `Message` and will be converted to its content.
 
-## Direct calls from the API
+
+## Direct calls to the API
 ```js
 bot.protocol.user.info('username', function(data){
 	//data is the raw data returned from the server
