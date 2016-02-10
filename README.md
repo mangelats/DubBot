@@ -7,22 +7,22 @@ No `package.json` because this won't be published to npm until it's stable.
 Most of this library is finished but I'm still working on it (sorry for the documentation, I know it's not good enough).
 
 # The basics
-## Log in
+### Log in
 ```js
 var bot = new DubBot('username', 'password');
 ```
 
-## Join a room
+### Join a room
 ```js
 var room = bot.join('room url or id');
 ```
 
-## send a message to the room chat
+### Send a message to the room chat
 ```js
 room.say("Hello!");
 ```
 
-## Events
+### Events
 It uses the `events` `npm` module.
 ```js
 room.on('chat-message', function(message){
@@ -30,11 +30,11 @@ room.on('chat-message', function(message){
 });
 ```
 
-## Add a command
+### Add a command
 Commands must start with exclamation mark (!). (Thats allows to make the code more efficient and avoid unwanted calls).
 ```js
 room.addCommand('!command', cooldown, function(args, message){
-	console.log("!command called!");
+	console.log("'!command' called!");
 });
 ```
 `cooldown` is optional. If a function is called while is in cooldown, it won't trigger the function (useful to avoid chat spam).
