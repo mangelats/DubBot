@@ -37,6 +37,11 @@ bot.on('log in', function(){
 room.on('chat-message', function(message){
 	console.log(message.toString());
 });
+room.on('song-change', function(song){
+	song.getLink(function(url){
+		room.say("Now playing: " + song + " Its permanent link is " + url);
+	});
+});
 ```
 
 ## PM support
