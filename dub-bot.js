@@ -23,8 +23,8 @@ class DubBot extends EventEmitter {
 
 		var that = this;
 		this.protocol.account.login(username, password, function(){
-			that.protocol.account.info(function(body){
-				that.id = body.data._id;
+			that.protocol.account.info(function(data){
+				that.id = data._id;
 				that.connected = true;
 				that.emit('log in');
 				that.rooms._joinRooms();
