@@ -49,20 +49,20 @@ The function returns `args` and `message` to the callback which are, respectivel
 
 
 # Features overview
-## Multiple accounts
+### Multiple accounts
 ```js
 var bot1 = new DubBot('user1', 'password1');
 var bot2 = new DubBot('user2', 'password2');
 ```
 
-## Join multiple rooms
+### Join multiple rooms
 ```js
 var room1_1 = bot1.join('room1-url');
 var room1_2 = bo11.join('room2-url');
 var room2_1 = bot2.join('room1-url');
 ```
 
-## Add commands
+### Add commands
 ```js
 //cooldown is in seconds and optional
 room.addCommand('!command', cooldown, function(args, message){
@@ -70,7 +70,7 @@ room.addCommand('!command', cooldown, function(args, message){
 });
 ```
 
-## Events
+### Events
 ```js
 bot.on('log-in', function(){
 	console.log("Logged in!");
@@ -85,7 +85,7 @@ room.on('song-change', function(song){
 });
 ```
 
-## PM support
+### PM support
 ```js
 room.addCommand('!pm', function(message){
 	message.sendPM("Here is your private message");
@@ -97,7 +97,7 @@ bot.on('private-message', function(conversation){
 });
 ```
 
-## Implicit convertions
+### Implicit convertions
 Most objects can be implicitly convertd to string, usually to some string that represents them.
 
 An example of this is the following:
@@ -109,7 +109,7 @@ room.addCommand('!command', function(args, message){
 `message.sender` is a `User` which will implicitly convert to it's username. `message` itself is a `Message` and will be converted to its content.
 
 
-## Direct calls to the API
+### Direct calls to the API
 ```js
 bot.protocol.user.info('username', function(data){
 	//data is the raw data returned from the server
