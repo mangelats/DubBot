@@ -30,7 +30,12 @@ class DubBot extends EventEmitter {
 				that.id = data._id;
 				that.connected = true;
 				that.emit('log in');
+
+				//join the rooms that were waiting to log in
 				that.rooms._joinRooms();
+
+				//Start the interval to check the private messages
+				that.pm._checkPM();
 				that.pm.inteval = setInterval(function(){ that.pm._checkPM(); }, that.pm.time);
 			});
 		});
