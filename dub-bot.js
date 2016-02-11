@@ -8,6 +8,8 @@ const checkArgs = require('./lib/utils/typecheck.js');
 const User = require('./lib/user.js');
 const PMManager = require('./lib/conversationmanager.js');
 
+const roles = require('./lib/data/roles.js');
+
 class DubBot extends EventEmitter {
 	constructor(username, password, callback, Protocol) {
 		checkArgs(arguments, ['String', 'String', 'Function'], "[DubBot] constructor");
@@ -89,6 +91,11 @@ class DubBot extends EventEmitter {
 
 	toString() {
 		return this.username;
+	}
+
+	//DubBot.roles is a thing, now
+	static get roles(){
+		return roles;
 	}
 }
 
