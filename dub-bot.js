@@ -10,7 +10,7 @@ const PMManager = require('./lib/conversationmanager.js');
 
 class DubBot extends EventEmitter {
 	constructor(username, password, callback, Protocol) {
-		checkArgs(arguments, ['String', 'String', 'Function'], "[DubBot] constructor", 2);
+		checkArgs(arguments, ['String', 'String', 'Function'], "[DubBot] constructor");
 
 		if (Protocol == undefined) Protocol = require('./lib/protocol/protocol.js');
 
@@ -20,25 +20,31 @@ class DubBot extends EventEmitter {
 
 		this.protocol = new Protocol();
 		this.rooms = new RoomList(this);
-		this.connected = false;
 		this.pm = new PMManager(this);
 		this.id = '';
 
-		var that = this;
-		this.protocol.account.login(username, password, function(){
-			that.protocol.account.info(function(data){
-				that.id = data._id;
-				that.connected = true;
-				that.emit('log in');
+		this.connected = false;
 
-				//join the rooms that were waiting to log in
-				that.rooms._joinRooms();
+		if (username !== undefined && password !== undefined) {
+			var that = this;
+			this.protocol.account.login(username, password, function(){
+				that.protocol.account.info(function(data){
+					that.id = data._id;
+					that.emit('log-in');
+					that.connected = true;
 
-				//Start the interval to check the private messages
-				that.pm._checkPM();
-				that.pm.inteval = setInterval(function(){ that.pm._checkPM(); }, that.pm.time);
+					//join the rooms that were waiting to log in
+					that.rooms._joinRooms();
+
+					//Start the interval to check the private messages
+					that.pm._checkPM();
+					that.pm.inteval = setInterval(function(){ that.pm._checkPM(); }, that.pm.time);
+				});
 			});
-		});
+		} else {
+			this.connected = true;
+			this.rooms._joinRooms();
+		}
 	}
 
 	join(room) {

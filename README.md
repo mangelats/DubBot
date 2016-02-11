@@ -12,6 +12,12 @@ Most of this library is finished but I'm still working on it (sorry for the docu
 var bot = new DubBot('username', 'password');
 ```
 
+### Log in as guest
+```js
+var bot = new DubBot();
+```
+**Warning:** Log in is not required but if you won't be able to do most things (still not using custom exceptions nor messages, it will show the plain reuest fail error).
+
 ### Join a room
 ```js
 var room = bot.join('room url or id');
@@ -66,7 +72,7 @@ room.addCommand('!command', cooldown, function(args, message){
 
 ## Events
 ```js
-bot.on('log in', function(){
+bot.on('log-in', function(){
 	console.log("Logged in!");
 });
 room.on('chat-message', function(message){
