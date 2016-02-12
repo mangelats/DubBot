@@ -1,10 +1,4 @@
 # DubBot
-Testing branch.
-
-No `package.json` because this won't be published to npm until it's stable.
-
-# Work in progress
-Most of this library is finished but I'm still working on it (sorry for the documentation, I know it's not good enough).
 
 # The basics
 ### Log in
