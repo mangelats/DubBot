@@ -23,7 +23,7 @@ var bot = new DubBot('username', 'password');
 ```
 The DubBot logs in asynchronously. You sould only register events (see below) and/or use `join`, which is prepared to wait.
 
-You can also make a bot that doesn't log in. Doing this will restrict the functions you can call (like happens in the web).
+You can also use a bot as a guest (without logging in). Doing this will restrict the functions you can call (like happens in the web).
 ```js
 var bot = new DubBot();
 ```
