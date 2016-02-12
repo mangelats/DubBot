@@ -119,3 +119,18 @@ var room12 = bot1.join('room2');
 var room21 = bot2.join('room1');
 ```
 As you can see it's possible to make two bots connect to the same room even though they are controlled by the same application.
+
+### Direct calls to the API
+In any moment you can make calls to the Dubtrack server by using the API. This is the Dubtrack's call made functions and saving cookies (used for log in) making it easier than trying to make the HTTP requests directly to the server.
+
+Here an example:
+```js
+bot.protocol.user.info('username', function(user){
+	bot.protocol.pm.get(user._id, function(conversation){
+		bot.protocol.pm.send(conversation._id, "This is a PM using the API.");
+	});
+});
+```
+The data recived by the callbacks is the raw data from the server.
+
+More information about it in the wiki.
