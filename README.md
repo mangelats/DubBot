@@ -62,7 +62,7 @@ room.onCommand('!command', cooldown, function(args, message){
 	console.log("command triggered");
 });
 ```
-Let's start noticing that a command MUST start with an exclamation mark (!) and will only be triggered if the command is at the start of the message.
+Let's start noticing that a command **MUST** start with an exclamation mark (!) and will only be triggered if the command is at the start of the message.
 
 `cooldown` is a cooldown timer for the command, avoiding to be triggered again before that period of time. This helps avoiding spam as well as preventing multiple triggers for the same function. A good example of this last one is a !skip command, which skips the song. If multiple people trigger this command they may skip more than a single song which was not the intention.
 
