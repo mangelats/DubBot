@@ -87,13 +87,16 @@ bot.sendPM([user1, user2, user3], "Private message :D");
 ```
 This method won't send this message to all this 3 users. Instead it will get (or make in case that it doesn't exist) the conversation with this people. Remember that the conversation support up to 10 people, 9 counting the bot.
 
-The other method is to get the `Conversation` object and use the method `send(message)`. There are different ways of getting a conversation object. The first one (and most common) when you recive a PM (explained later) or using a `DubBot`:
+The other method is to get the `Conversation` object and use the method `send(message)`. There are different ways of getting a conversation object. The first one (and most common) when you recive a PM (explained later), using a `User`object or using a `DubBot`:
 ```js
+user.getConversation(function(conversation)){
+	conversation.send("Private message :D");
+});
 bot.getConversation([user1, user2], function(conversation)){
 	conversation.send("Private message :D");
 });
 ```
-As you can see this method is really similar to `sendPM`.
+As you can see this methods are really similar to `User` and `DubBot`'s `sendPM`.
 
 When reciving a PM, the bot will emit a `private-message` event. It passes the conversation object with it:
 ```js
