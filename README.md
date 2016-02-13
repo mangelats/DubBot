@@ -3,8 +3,7 @@ DubBot is a library which is being thought to be used to make bots. It also cont
 
 I struggled so hard trying to find out what calls are done to the dubtrack's server and how they work. So I decided to make a refference in the wiki, allowing any other person a easier way of making projects, independently of the programming language.
 
-# Get started
-
+# How to use it
 ### Install DubBot
 BubBot is an `npm` package. Simply use:
 ```
