@@ -1,7 +1,7 @@
 # DubBot
 DubBot is a library which is being thought to be used to make bots. It also contains a custom API that allows to make direct calls to the Dubtrack's servers (read more at the end of this file).
 
-I struggled so hard trying to find what calls are actually done and its usage. Because of that I decided to make a refference in the wiki, allowing any other person a easier way of making projects. This reference is a reference of the calls so it's language free.
+I struggled so hard trying to find out what calls are done to the dubtrack's server and how they work. So I decided to make a refference in the wiki, allowing any other person a easier way of making projects, independently of the programming language.
 
 # Get started
 
