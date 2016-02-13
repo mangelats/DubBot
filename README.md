@@ -32,7 +32,7 @@ var bot = new DubBot();
 ```js
 var room = bot.join('room url or id');
 ```
-The most common thing is to have the url (if the url were "url" the link would be `https://www.dubtrack.fm/room/url`).
+The most common thing is to have the url (if the url were "url" the link would be `https://www.dubtrack.fm/join/url`).
 
 
 ### Registring events
