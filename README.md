@@ -73,7 +73,36 @@ The arguments of the callback are two (2):
 Even if a command is succesfully triggered, it will call (after executing teh callback) the `chat-message` event.
 
 ### Private messages
-TODO
+The first thing you'd use the PM is to send one. There are differents ways of doing it. The easiest one is to use a `User` object to send a private message directly:
+```js
+user.sendPM("Private message :D");
+```
+Alternatively you can use a `DubBot` method:
+```js
+bot.sendPM(user, "Private message :D");
+```
+This method also alows you to send private messages to conversation with more than a single person:
+```js
+bot.sendPM([user1, user2, user3], "Private message :D");
+```
+This method won't send this message to all this 3 users. Instead it will get (or make in case that it doesn't exist) the conversation with this people. Remember that the conversation support up to 10 people, 9 counting the bot.
+
+The other method is to get the `Conversation` object and use the method `send(message)`. There are different ways of getting a conversation object. The first one (and most common) when you recive a PM (explained later) or using a `DubBot`:
+```js
+bot.getConversation([user1, user2], function(conversation)){
+	conversation.send("Private message :D");
+});
+```
+As you can see this method is really similar to `sendPM`.
+
+When reciving a PM, the bot will emit a `private-message` event. It passes the conversation object with it:
+```js
+bot.on('private-message', function(conversation){
+	console.log(conversation.lastMessage);
+	conversation.send("Recived");
+});
+```
+Obviously, the event doesn't catch its own messages.
 
 ### Objects
  - `DubBot` Base class of the bot.
