@@ -71,6 +71,14 @@ The arguments of the callback are two (2):
 
 Even if a command is succesfully triggered, it will call (after executing teh callback) the `chat-message` event.
 
+### Adding command alias
+Sometimes you want a single command to have multiple possible ways to be called, usually for having a shorted version of it.
+```js
+room.addCommandAlias('!command', '!cmd');
+```
+The alias will respond exactly the same as it were the command, sharing the cooldown and the callback function.
+
+
 ### Private messages
 The first thing you'd use the PM is to send one. There are differents ways of doing it. The easiest one is to use a `User` object to send a private message directly:
 ```js
