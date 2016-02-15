@@ -18,7 +18,7 @@
     "bugtrack"
   ],
   "author": "Martí \"Copying\" Angelats i Ribera <martiangelats@hotmail.com>",
-  "license": "GPL-3.0",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/copying/dub-bot/issues"
   },
