@@ -57,7 +57,7 @@ They have mutiple events and may send objects as arguments of the callback. Here
 ### Adding commands
 A command is an intruction from in-chat messages to the bot. This library supports detecting commands without making a huge conditional chain.
 ```js
-room.onCommand('!command', cooldown, function(args, message){
+room.addCommand('!command', cooldown, function(args, message){
 	console.log("command triggered");
 });
 ```
