@@ -1,6 +1,6 @@
 {
   "name": "dub-bot",
-  "version": "3.2.5",
+  "version": "3.3.0",
   "description": "An API to make bots for dubtrack.fm",
   "main": "dub-bot.js",
   "scripts": {
