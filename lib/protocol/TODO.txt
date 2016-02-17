@@ -1,3 +1,0 @@
-make room
-update room
-remove room
